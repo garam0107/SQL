@@ -19,6 +19,34 @@
     {% csrf_token %}
     <input type="submit" value="삭제">
   </form>
+  <hr>
+
+  <h3>댓글 목록</h3>
+  <p>{{article.comment_set.count}}개의 댓글이 있습니다.</p>
+  <ul>
+    {% for comment in comments  %}
+    <li>{{comment.content}}
+      <form action="{% url "articles:comment_delete" article.pk comment.pk %}" method = 'POST'>
+        {% csrf_token %}
+        <input type="submit" value="삭제">
+      </form>
+    </li>
+    {% empty %}
+      <p>댓글이 없어요</p>
+    {% endfor %}
+  </ul>
+  <hr>
+
+  <hr>
+
+  <form action="{% url "articles:comment_create" article.pk%}" method = "POST"> 
+    {% csrf_token %}
+    {{comment_form}}
+    <input type="submit">
+  </form>
+
+  <hr>
+
   <a href="{% url "articles:index" %}">[back]</a>
 </body>
 </html>
