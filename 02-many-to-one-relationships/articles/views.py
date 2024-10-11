@@ -1,6 +1,7 @@
 from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
-
+# 지정된 HTTP method만 허용
+from django.views.decorators.http import require_http_methods,require_POST
 from .models import Article,Comment
 from .forms import ArticleForm,CommentForm
 
@@ -27,11 +28,18 @@ def detail(request, pk):
 
 
 @login_required
+# POST요청과 GET요청만 허용
+# 아래와 같은 데코레이터가 없는 상황에서 PUT/PATH, DELETE 등의 메서드 등의 요청이 들어오게 되면?
+# 로직에는 IF문으로 POST에 대한 조건 분기를 해놨는데 나머지는 HTML 반환 하는 형식으로 코드 작성
+@require_http_methods(['POST','GET']) 
+# 데코레이터를 통해서 POST와 GET요청만 허용하게 해둔 상태에서 다른 메서드로 요청이 온다면?
 def create(request):
     if request.method == 'POST':
         form = ArticleForm(request.POST)
         if form.is_valid():
-            article = form.save()
+            article = form.save(commit=False)
+            article.user = request.user
+            form.save()
             return redirect('articles:detail', article.pk)
     else:
         form = ArticleForm()
@@ -44,26 +52,31 @@ def create(request):
 @login_required
 def update(request, pk):
     article = Article.objects.get(pk=pk)
-    if request.method == 'POST':
-        form = ArticleForm(request.POST, instance=article)
-        if form.is_valid():
-            form.save()
-            return redirect('articles:detail', article.pk)
-    else:
-        form = ArticleForm(instance=article)
-    context = {
-        'article': article,
-        'form': form,
-    }
-    return render(request, 'articles/update.html', context)
+    if article.user == request.user:
+        if request.method == 'POST':
+            form = ArticleForm(request.POST, instance=article)
+            if form.is_valid():
+                form.save()
+                return redirect('articles:detail', article.pk)
+        else:
+            form = ArticleForm(instance=article)
+        context = {
+            'article': article,
+            'form': form,
+        }
+        return render(request, 'articles/update.html', context)
+   
+    return redirect('articles:detail', article.pk)
 
 
 @login_required
+@require_POST
 def delete(request, pk):
-    article = Article.objects.get(pk=pk)
-    article.delete()
+    if request.user == article.user:
+        article = Article.objects.get(pk=pk)
+        article.delete()
+        return redirect('articles:index')
     return redirect('articles:index')
-
 
 def comment_create(request, pk):
     article = Article.objects.get(pk = pk)
@@ -78,6 +91,7 @@ def comment_create(request, pk):
         # commit = False 옵션을 주면 저장은 하지 않고 인스턴스만 return
         comment = comment_form.save(commit=False)
         comment.article = article
+        comment.user = request.user
         comment.save()
         return redirect('articles:detail', article.pk)
     context = {
@@ -93,6 +107,8 @@ def comment_delete(request,article_pk,comment_pk):
     #article_pk = comment.article.pk
     # article의 pk를 가져오는 두번 째 방법
     # urls에서 pk를 2개 가져오가
-    article = Article.objects.get(pk=article_pk)
-    comment.delete()
-    return redirect('articles:detail', article.pk)
+    if request.user == comment.user:
+        article = Article.objects.get(pk=article_pk)
+        comment.delete()
+        return redirect('articles:detail', article.pk)
+    return redirect('articles:index')

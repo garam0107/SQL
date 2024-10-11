@@ -8,28 +8,36 @@
 <body>
   <h1>Detail</h1>
   <h3>{{ article.pk }}번째 글</h3>
+  <p>글 작성자: {{article.user.username}}</p>
   <hr>
   <p>제목: {{ article.title }}</p>
   <p>내용: {{ article.content }}</p>
   <p>작성일: {{ article.created_at }}</p>
   <p>수정일: {{ article.updated_at }}</p>
   <hr>
-  <a href="{% url "articles:update" article.pk %}">수정</a><br>
-  <form action="{% url "articles:delete" article.pk %}" method="POST">
-    {% csrf_token %}
-    <input type="submit" value="삭제">
-  </form>
+  {% if request.user == article.user %}
+    <a href="{% url "articles:update" article.pk %}">수정</a><br>
+    <form action="{% url "articles:delete" article.pk %}" method="POST">
+      {% csrf_token %}
+      <input type="submit" value="삭제">
+    </form>
+  {% endif %}
   <hr>
 
   <h3>댓글 목록</h3>
   <p>{{article.comment_set.count}}개의 댓글이 있습니다.</p>
   <ul>
     {% for comment in comments  %}
-    <li>{{comment.content}}
-      <form action="{% url "articles:comment_delete" article.pk comment.pk %}" method = 'POST'>
-        {% csrf_token %}
-        <input type="submit" value="삭제">
-      </form>
+    <li>
+      <p>
+        {{comment.content}} - {{comment.user.username}}
+      </p>
+      {% if request.user == comment.user %}
+        <form action="{% url "articles:comment_delete" article.pk comment.pk %}" method = 'POST'>
+          {% csrf_token %}
+          <input type="submit" value="삭제">
+        </form>
+      {% endif %}
     </li>
     {% empty %}
       <p>댓글이 없어요</p>
