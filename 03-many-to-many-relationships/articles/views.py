@@ -1,6 +1,7 @@
 from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
 from django.views.decorators.http import require_POST
+from django.contrib.auth import get_user_model
 
 from .models import Article, Comment
 from .forms import ArticleForm, CommentForm
@@ -113,3 +114,4 @@ def likes(request, article_pk):
         article.like_users.add(request.user)
 
     return redirect('articles:index')
+

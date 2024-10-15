@@ -5,8 +5,8 @@ from django.db.models import Count
 
 # Create your views here.
 def index_1(request):
-    articles = Article.objects.order_by('-pk')
-    # articles = Article.objects.annotate(Count('comment')).order_by('-pk')
+    # articles = Article.objects.order_by('-pk')
+    articles = Article.objects.annotate(Count('comment')).order_by('-pk')
     context = {
         'articles': articles,
     }

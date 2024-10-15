@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+</head>
+<body>
+  <h1>{{person.username}}의 프로필 페이지입니다.</h1>
+
+  <div>
+    <form action="{% url "accounts:follow" person.pk %}" method = 'POST'>
+      {% csrf_token %}
+      {% if request.user %}{% endif %}      
+      <input type="submit" value="팔로우">
+    </form>
+  </div>
+  <h2>{{person.username}}가 작성한 게시글</h2>
+  {% for article in person.article_set.all  %}
+    <p>{{article}}</p>
+  {% endfor %}
+  <h2>{{person.username}}가 작성한 댓글</h2>
+  {% for comment in person.comment_set.all %}
+    <p>{{comment}}</p>
+  {% endfor %}
+
+  <h2>{{person.username}}가 좋아요한 게시글</h2>
+    {% for article  in person.like_articles.all %}
+      <p>{{article}}</p>
+    {% endfor %}
+
+</body>
+</html>

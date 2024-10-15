@@ -1,0 +1,21 @@
+[
+{
+    "model": "accounts.user",
+    "pk": 1,
+    "fields": {
+        "password": "pbkdf2_sha256$600000$3Go1w08xq4gFGqG2uF6w9a$H+nht1XEnGqbwqFrAZSg+drHaavVPSsoZY+KVh69MK8=",
+        "last_login": "2024-10-15T00:23:00.135Z",
+        "is_superuser": false,
+        "username": "garam",
+        "first_name": "",
+        "last_name": "",
+        "email": "",
+        "is_staff": false,
+        "is_active": true,
+        "date_joined": "2024-10-14T02:47:53.027Z",
+        "groups": [],
+        "user_permissions": [],
+        "followings": []
+    }
+}
+]
